@@ -3,7 +3,7 @@ import {createElement, Fragment, Raw} from "@bikeshaving/crank";
 import {renderer} from "@bikeshaving/crank/dom";
 import "./index.css";
 
-function* Comment() {
+function* Comment({comment}) {
 	let expanded = true;
 	this.addEventListener("click", (ev) => {
 		if (ev.target.className === "expand") {
@@ -13,7 +13,7 @@ function* Comment() {
 		}
 	});
 
-	for (const {comment} of this) {
+	for ({comment} of this) {
 		yield (
 			<div class="comment">
 				<p>
@@ -111,9 +111,11 @@ async function Loading({wait = 2000}) {
 }
 
 async function* App() {
+	let hash;
 	let data;
+	const visited = new Set();
 	const route = (ev) => {
-		const hash = window.location.hash;
+		hash = window.location.hash;
 		data = parseHash(hash);
 		if (data == null) {
 			data = {route: "top", page: 1};
@@ -141,7 +143,10 @@ async function* App() {
 				}
 			}
 
-			window.scrollTo(0, 0);
+			if (!visited.has(hash)) {
+				window.scrollTo(0, 0);
+				visited.add(hash);
+			}
 		}
 	} finally {
 		window.removeEventListener("hashchange", route);
